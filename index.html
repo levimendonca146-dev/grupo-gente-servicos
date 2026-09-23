@@ -548,7 +548,7 @@
         </div>
       </div>
 
-      <form onsubmit="event.preventDefault(); const btn=this.querySelector('.form-submit'); btn.textContent='Enviado — obrigado!'; btn.disabled=true;">
+      <form id="contact-form" action="https://formspree.io/f/xbglyjov" method="POST">
         <div class="form-row">
           <div>
             <label for="nome">Nome</label>
@@ -582,8 +582,37 @@
           <textarea id="mensagem" name="mensagem" placeholder="Conte um pouco sobre o local e o volume de trabalho"></textarea>
         </div>
         <button type="submit" class="form-submit">Enviar solicitação</button>
-        <span class="form-note">Formulário de demonstração — conecte a um serviço de e-mail ou CRM para receber os envios.</span>
+        <span class="form-note" id="form-status">Respondemos em até 48h úteis pelo e-mail informado.</span>
       </form>
+      <script>
+        (function(){
+          var form = document.getElementById('contact-form');
+          var status = document.getElementById('form-status');
+          form.addEventListener('submit', function(e){
+            e.preventDefault();
+            var btn = form.querySelector('.form-submit');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            fetch(form.action, {
+              method: 'POST',
+              body: new FormData(form),
+              headers: { 'Accept': 'application/json' }
+            }).then(function(res){
+              if (res.ok) {
+                btn.textContent = 'Enviado — obrigado!';
+                status.textContent = 'Recebemos sua solicitação e vamos responder em breve.';
+                form.reset();
+              } else {
+                throw new Error('request failed');
+              }
+            }).catch(function(){
+              btn.disabled = false;
+              btn.textContent = 'Enviar solicitação';
+              status.textContent = 'Não foi possível enviar agora — tente novamente ou fale pelo WhatsApp/e-mail acima.';
+            });
+          });
+        })();
+      </script>
     </div>
   </div>
 </section>
